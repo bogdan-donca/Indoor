@@ -1,7 +1,6 @@
 package com.indoor.positioning;
 
 import java.text.DecimalFormat;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -16,6 +15,7 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
+import android.graphics.Point;
 import android.net.Uri;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
@@ -157,21 +157,45 @@ public class ProcessActivity extends Activity{
 	
 	private void startTriangulation(List<ScanResult> customWifiList2){
 		float W, Z, x, y, y2;
+		Point A = new Point(120, 120);
+		Point B = new Point(140, 140);
+		Point C = new Point(160, 160);
 		double distanceToA, distanceToB, distanceToC;
 		 DecimalFormat df = new DecimalFormat("#.##");
 		 distanceToA = calculateDistance((double)customWifiList2.get(0).level, customWifiList2.get(0).frequency);
 		 distanceToB = calculateDistance((double)customWifiList2.get(1).level, customWifiList2.get(1).frequency);
 		 distanceToC = calculateDistance((double)customWifiList2.get(2).level, customWifiList2.get(2).frequency);
 		 
-		 W = (float) (distanceToA*distanceToA - distanceToB*distanceToB - 120*120 - 120*120 + 140*140 + 140*140);
-		 Z = (float) (distanceToB*distanceToB - distanceToC*distanceToC - 140*140 - 140*140 + 160*160+ 160*160);
-		 x = (W*(160-140) - Z*(140-120)) / (2* ((140 - 120)*(160 * 160) - (160 - 140)*(140-120)));
-		 y = (W - 2*x*(140 -120)) / (2* (160 -140));
-		 y2 = (Z - 2*x*(160-140)) / (2*(160-140));
+		 W = (float) (distanceToA*distanceToA - distanceToB*distanceToB - A.x*A.x - A.y*A.y + B.x*B.x + B.y*B.y);
+		 Z = (float) (distanceToB*distanceToB - distanceToC*distanceToC - B.x*B.x - B.y*B.y + C.x*C.x+ C.y*C.y);
+		 x = (W*(C.y-B.y) - Z*(B.y-A.y)) / (2* ((B.x - A.x)*(C.y * B.y) - (C.x - B.x)*(B.y-A.y)));
+		 y = (W - 2*x*(B.x -A.x)) / (2* (B.y -A.y));
+		 y2 = (Z - 2*x*(C.x-B.x)) / (2*(C.y-B.y));
 		 
 		 y = (y + y2) / 2;
-		 
          Log.d("!!!!!????!!!", y +" "+ x + "m");
+	}
+	
+	private void startTriangulation2(List<ScanResult> customWifiList2){
+		float W, Z, x, y, y2;
+		Point A = new Point(120, 120);
+		Point B = new Point(140, 140);
+		Point C = new Point(160, 160);
+		double distanceToA, distanceToB, distanceToC;
+		 DecimalFormat df = new DecimalFormat("#.##");
+		 distanceToA = calculateDistance((double)customWifiList2.get(0).level, customWifiList2.get(0).frequency);
+		 distanceToB = calculateDistance((double)customWifiList2.get(1).level, customWifiList2.get(1).frequency);
+		 distanceToC = calculateDistance((double)customWifiList2.get(2).level, customWifiList2.get(2).frequency);
+		 
+		 W = (float) (distanceToA*distanceToA - distanceToB*distanceToB - A.x*A.x - A.y*A.y + B.x*B.x + B.y*B.y);
+		 Z = (float) (distanceToB*distanceToB - distanceToC*distanceToC - B.x*B.x - B.y*B.y + C.x*C.x+ C.y*C.y);
+		 x = (W*(C.y-B.y) - Z*(B.y-A.y)) / (2* ((B.x - A.x)*(C.y * B.y) - (C.x - B.x)*(B.y-A.y)));
+		 y = (W - 2*x*(B.x -A.x)) / (2* (B.y -A.y));
+		 y2 = (Z - 2*x*(C.x-B.x)) / (2*(C.y-B.y));
+		 
+		 y = (y + y2) / 2;
+         Log.d("!!!!!????!!!", y +" "+ x + "m");
+         
 	}
 	
 //	(CGPoint)getCoordinateWithBeaconA:(CGPoint)a beaconB:(CGPoint)b beaconC:(CGPoint)c distanceA:(CGFloat)dA distanceB:(CGFloat)dB distanceC:(CGFloat)dC {
